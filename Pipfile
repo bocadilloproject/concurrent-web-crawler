@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 bocadillo = "*"
+aiohttp = "*"
 
 [dev-packages]
 
