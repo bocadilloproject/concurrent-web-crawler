@@ -12,17 +12,15 @@ class Jobs:
     def create(self, url: str) -> int:
         job_id = self._next_job_id = self._next_job_id + 1
         self._results[job_id] = None
-
-        async def job():
-            await sleep(10)
-            return await scrape(url)
-
-        self._jobs[job_id] = job()
+        job = scrape(url)
+        self._jobs[job_id] = {"job": job, "url": url}
         return job_id
 
     async def run(self, job_id: int):
         job = self._jobs.pop(job_id)
-        self._results[job_id] = await job
+        results = await job["job"]
+        results["url"] = job["url"]
+        self._results[job_id] = results
 
     def results_of(self, job_id: int):
         return self._results[job_id]
