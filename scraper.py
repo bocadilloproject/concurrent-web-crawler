@@ -1,22 +1,27 @@
 from asyncio import sleep
 from html.parser import HTMLParser
+from typing import Tuple
 
 import aiohttp
 
 
-async def scrape(url: str) -> dict:
-    await sleep(5)
-
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            html = await response.text()
-            status = response.status
-
+async def scrape(url: str, wait: int = 5) -> dict:
+    await sleep(wait)
+    status, text = await fetch(url)
     print({"event": "fetched", "url": url})
-    results = parse_results(html)
+
+    results = parse_results(text)
     results["status"] = status
 
     return results
+
+
+async def fetch(url) -> Tuple[int, str]:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            text = await response.text()
+            status = response.status
+            return status, text
 
 
 class Parser(HTMLParser):

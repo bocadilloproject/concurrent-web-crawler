@@ -38,37 +38,57 @@ curl http://localhost:8000/scrapers \
 Example response:
 
 ```json
-{"job_id": 1}
+{
+    "key": 1,
+    "url": "http://localhost:5001",
+    "state": "scheduled",
+    "results": null
+}
 ```
 
 The response will be returned immediately and the scraping will occur *asynchronously*.
 
-The server will answer with a *job ID* (as above) which we can use to retrieve results by calling `/scrapers/{job_id}/results`:
+The server will answer with a *job key* or ID as above, which can be used to retrieve results by calling `/scrapers/{key}/results`:
 
-For example, let's call `http://localhost:8000/scrapers/1/results`:
+For example, let's call `http://localhost:8000/scrapers/1/results`.
 
-- Example response while the scraper is running:
-
-```json
-{
-  "results": null,
-  "job_id": 1
-}
-```
-
-- Example response when the scraper has finished:
+- Example response while the scraper is running (status: 202):
 
 ```json
 {
-  "results": {
-    "title": "Hello, world!",
-    "description": "This fake website rocks.",
-    "status": 200,
-    "url": "http://localhost:5001"
-  },
-  "job_id": 1
+    "key": 1,
+    "url": "http://localhost:5001",
+    "state": "in_progress",
+    "results": null
 }
 ```
 
+- Example response when the scraper has successfully finished (status: 200):
+
+```json
+{
+    "key": 1,
+    "url": "http://localhost:5001",
+    "state": "success",
+    "results": {
+        "title": "Hello, world!",
+        "description": "This fake website rocks.",
+        "status": 200
+    }
+}
+```
+
+- Example response if scraping has failed (status: 200):
+
+```json
+{
+    "key": 1,
+    "url": "http://localhost:5001",
+    "state": "failed",
+    "results": {
+        "error": "Cannot connect to host localhost:5001 ssl:None [No route to host]"
+    }
+}
+```
 
 [Pipenv]: https://pipenv.readthedocs.io

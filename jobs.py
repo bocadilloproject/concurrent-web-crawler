@@ -1,26 +1,35 @@
-from asyncio import sleep
-
 from scraper import scrape
 
 
-class Jobs:
-    def __init__(self):
-        self._results = {}
-        self._jobs = {}
-        self._next_job_id = 0
+class Job:
+    def __init__(self, key: int, url: str, wait: int = 5):
+        self.key = key
+        self.url = url
+        self.wait = wait
+        self.state = "scheduled"
+        self.results = None
 
-    def create(self, url: str) -> int:
-        job_id = self._next_job_id = self._next_job_id + 1
-        self._results[job_id] = None
-        job = scrape(url)
-        self._jobs[job_id] = {"job": job, "url": url}
-        return job_id
+    @property
+    def finished(self) -> bool:
+        return self.results is not None
 
-    async def run(self, job_id: int):
-        job = self._jobs.pop(job_id)
-        results = await job["job"]
-        results["url"] = job["url"]
-        self._results[job_id] = results
+    async def run(self):
+        self.state = "in_progress"
+        try:
+            self.results = await scrape(self.url, wait=self.wait)
+        except Exception as e:
+            self.state = "failed"
+            self.results = {
+                "error": str(e)
+            }
+            raise e from None
+        else:
+            self.state = "success"
 
-    def results_of(self, job_id: int):
-        return self._results[job_id]
+    def to_json(self):
+        return {
+            "key": self.key,
+            "url": self.url,
+            "state": self.state,
+            "results": self.results,
+        }

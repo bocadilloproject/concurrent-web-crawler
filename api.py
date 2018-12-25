@@ -1,30 +1,49 @@
-import bocadillo
+from itertools import count
+from typing import Dict
 
-from jobs import Jobs
+import bocadillo
+from bocadillo.exceptions import HTTPError
+
+from jobs import Job
 
 api = bocadillo.API()
-jobs = Jobs()
+
+
+@api.error_handler(HTTPError)
+def to_json(req, res, exc: HTTPError):
+    res.status_code = exc.status_code
+    res.media = {"error": str(exc), "state": exc.status_code}
+
+
+# In-memory store of jobs
+jobs: Dict[int, Job] = {}
+
+# Iterator for auto-incremented job keys.
+keys = count(start=1)
 
 
 @api.route("/scrapers", methods=["post"])
 async def create_scraper(req, res):
     json = await req.json()
     url = json["url"]
-    job_id = jobs.create(url)
+    job = Job(key=next(keys), url=url)
+    jobs[job.key] = job
 
     @res.background
     async def scrape():
-        await jobs.run(job_id)
+        await job.run()
 
-    res.media = {"job_id": job_id}
+    res.media = job.to_json()
     res.status_code = 202
 
 
-@api.route("/scrapers/{job_id:d}/results")
-async def get_scraper_results(req, res, job_id: int):
-    results = jobs.results_of(job_id)
-    res.media = {"results": results, "job_id": job_id}
-    res.status_code = 200 if results is not None else 202
+@api.route("/scrapers/{key:d}/results")
+async def get_scraper_results(req, res, key: int):
+    job = jobs.get(key)
+    if job is None:
+        raise HTTPError(404)
+    res.media = job.to_json()
+    res.status_code = 200 if job.finished is not None else 202
 
 
 if __name__ == '__main__':
