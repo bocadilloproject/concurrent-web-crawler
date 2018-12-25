@@ -1,6 +1,6 @@
 from asyncio import sleep
 
-from crawler import crawl
+from scraper import scrape
 
 
 class Jobs:
@@ -15,7 +15,7 @@ class Jobs:
 
         async def job():
             await sleep(10)
-            return await crawl(url)
+            return await scrape(url)
 
         self._jobs[job_id] = job()
         return job_id

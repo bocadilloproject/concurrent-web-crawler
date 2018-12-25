@@ -6,22 +6,22 @@ api = bocadillo.API()
 jobs = Jobs()
 
 
-@api.route("/crawls", methods=["post"])
-async def create_crawl(req, res):
+@api.route("/scrapers", methods=["post"])
+async def create_scraper(req, res):
     json = await req.json()
     url = json["url"]
     job_id = jobs.create(url)
 
     @res.background
-    async def crawl_it():
+    async def scrape():
         await jobs.run(job_id)
 
     res.media = {"job_id": job_id}
     res.status_code = 202
 
 
-@api.route("/crawls/{job_id:d}")
-async def get_crawl(req, res, job_id: int):
+@api.route("/scrapers/{job_id:d}/results")
+async def get_scraper_results(req, res, job_id: int):
     results = jobs.results_of(job_id)
     res.media = {"results": results, "job_id": job_id}
     res.status_code = 200 if results is not None else 202
