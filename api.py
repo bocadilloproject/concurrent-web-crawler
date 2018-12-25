@@ -1,13 +1,30 @@
 import bocadillo
 
-from crawler import crawl
+from jobs import Jobs
 
 api = bocadillo.API()
+jobs = Jobs()
 
 
-@api.route('/server/{port:d}')
-async def call_server(req, res, port: int):
-    res.media = await crawl(f'http://localhost:{port}')
+@api.route("/crawls", methods=["post"])
+async def create_crawl(req, res):
+    json = await req.json()
+    url = json["url"]
+    job_id = jobs.create(url)
+
+    @res.background
+    async def crawl_it():
+        await jobs.run(job_id)
+
+    res.media = {"job_id": job_id}
+    res.status_code = 202
+
+
+@api.route("/crawls/{job_id:d}")
+async def get_crawl(req, res, job_id: int):
+    results = jobs.results_of(job_id)
+    res.media = {"results": results, "job_id": job_id}
+    res.status_code = 200 if results is not None else 202
 
 
 if __name__ == '__main__':
