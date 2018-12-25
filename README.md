@@ -61,9 +61,10 @@ For example, let's call `http://localhost:8000/scrapers/1/results`:
 ```json
 {
   "results": {
-    "title": null,
-    "description": null,
-    "status": 200
+    "title": "Hello, world!",
+    "description": "This fake website rocks.",
+    "status": 200,
+    "url": "http://localhost:5001"
   },
   "job_id": 1
 }
