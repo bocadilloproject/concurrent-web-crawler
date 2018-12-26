@@ -27,6 +27,7 @@ Using [Pipenv]:
 
 ```bash
 pipenv install
+pipenv shell
 ```
 
 ## Usage
@@ -36,7 +37,7 @@ pipenv install
 First, start the API server:
 
 ```bash
-pipenv run python api.py
+python api.py
 ```
 
 For convenience, the `site/` directory provides a set of HTML pages you can serve with Python in order to run a local website for testing purposes. The following command serves them on `http://localhost:5001`:
