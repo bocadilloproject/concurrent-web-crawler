@@ -1,4 +1,4 @@
-# Tarantula
+# Raspador
 
 A concurrent web scraping service built with [Bocadillo] which allows clients to fetch metadata about websites.
 
@@ -20,7 +20,7 @@ First, start the API server:
 pipenv run python api.py
 ```
 
-To prevent fetching external websites, you can run the following command to serve the HTML documents inside `site/` on `http://localhost:5001`:
+For convenience, the `site/` directory provides a set of HTML pages you can serve with Python in order to run a local website for testing purposes. The following command serves them on `http://localhost:5001`:
 
 ```bash
 python -m http.server 5001 -b localhost -d site
