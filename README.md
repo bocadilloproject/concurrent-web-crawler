@@ -120,4 +120,4 @@ Below are example responses for a call to `/scrapers/1/results` (assuming the sc
 [aiosmtpd]: https://github.com/aio-libs/aiosmtpd
 [aiologstash]: https://github.com/aio-libs/aiologstash
 [asyncpg]: https://github.com/MagicStack/asyncpg
-[background task]: https://bocadilloproject.github.io/topics/features/background-tasks.html
+[background task]: https://bocadilloproject.github.io/guides/http/background-tasks.html
